@@ -1,10 +1,10 @@
-package com.fleet.auth_service.config;
+package com.fleet.auth_service.infra.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fleet.auth_service.config.properties.RedisProperties;
+import com.fleet.auth_service.infra.config.properties.RedisProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -24,7 +24,6 @@ public class RedisConfig {
   @Bean
   public ObjectMapper redisObjectMapper() {
     ObjectMapper objectMapper = new ObjectMapper();
-
     objectMapper.registerModule(new JavaTimeModule());
 
     BasicPolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator
@@ -61,21 +60,6 @@ public class RedisConfig {
     template.setEnableTransactionSupport(true);
     template.afterPropertiesSet();
 
-    return template;
-  }
-
-  @Bean
-  public RedisTemplate<String, String> stringRedisTemplate(RedisConnectionFactory connectionFactory) {
-    RedisTemplate<String, String> template = new RedisTemplate<>();
-    template.setConnectionFactory(connectionFactory);
-
-    StringRedisSerializer stringSerializer = new StringRedisSerializer();
-    template.setKeySerializer(stringSerializer);
-    template.setValueSerializer(stringSerializer);
-    template.setHashKeySerializer(stringSerializer);
-    template.setHashValueSerializer(stringSerializer);
-
-    template.afterPropertiesSet();
     return template;
   }
 

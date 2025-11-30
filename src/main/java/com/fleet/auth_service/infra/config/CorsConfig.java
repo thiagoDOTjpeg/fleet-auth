@@ -1,6 +1,6 @@
-package com.fleet.auth_service.config;
+package com.fleet.auth_service.infra.config;
 
-import com.fleet.auth_service.config.properties.CorsProperties;
+import com.fleet.auth_service.infra.config.properties.CorsProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;

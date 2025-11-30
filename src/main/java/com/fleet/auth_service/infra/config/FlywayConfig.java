@@ -1,6 +1,6 @@
-package com.fleet.auth_service.config;
+package com.fleet.auth_service.infra.config;
 
-import com.fleet.auth_service.config.properties.FlywayProperties;
+import com.fleet.auth_service.infra.config.properties.FlywayProperties;
 import org.flywaydb.core.Flyway;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +27,7 @@ public class FlywayConfig {
 
             .schemas(flywayProperties.getSchemas())
             .defaultSchema(flywayProperties.getDefaultSchema())
-            .createSchemas(true)
+            .createSchemas(flywayProperties.getCreateSchemas())
 
             .load();
 

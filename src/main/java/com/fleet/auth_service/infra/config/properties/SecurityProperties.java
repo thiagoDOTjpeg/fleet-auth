@@ -1,4 +1,4 @@
-package com.fleet.auth_service.config.properties;
+package com.fleet.auth_service.infra.config.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
