@@ -20,8 +20,6 @@ public class User implements UserDetails {
   private String password;
   @Column(name = "user_type")
   private UserType userType;
-  @Column
-  private Boolean active;
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
   private Set<Role> roles;
@@ -29,20 +27,31 @@ public class User implements UserDetails {
   private Date createdAt;
   @Column(name = "updated_at")
   private Date updatedAt;
+  @Column(nullable = false)
+  private boolean enabled = true;
+  @Column(name = "account_non_expired", nullable = false)
+  private boolean accountNonExpired = true;
+  @Column(name = "account_non_locked", nullable = false)
+  private boolean accountNonLocked = true;
+  @Column(name = "credentials_non_expired", nullable = false)
+  private boolean credentialsNonExpired = true;
 
   public User() {
   }
 
-  public User(UUID id, String name, String email, String password, UserType userType, Boolean active, Set<Role> roles, Date createdAt, Date updatedAt) {
+  public User(UUID id, String name, String email, String password, UserType userType, Set<Role> roles, Date createdAt, Date updatedAt, boolean enabled, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired) {
     this.id = id;
     this.name = name;
     this.email = email;
     this.password = password;
     this.userType = userType;
-    this.active = active;
     this.roles = roles;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
+    this.enabled = enabled;
+    this.accountNonExpired = accountNonExpired;
+    this.accountNonLocked = accountNonLocked;
+    this.credentialsNonExpired = credentialsNonExpired;
   }
 
   public UUID getId() {
@@ -97,14 +106,6 @@ public class User implements UserDetails {
     this.userType = userType;
   }
 
-  public Boolean getActive() {
-    return active;
-  }
-
-  public void setActive(Boolean active) {
-    this.active = active;
-  }
-
   public Date getCreatedAt() {
     return createdAt;
   }
@@ -127,5 +128,41 @@ public class User implements UserDetails {
 
   public void setRoles(Set<Role> roles) {
     this.roles = roles;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
+
+  @Override
+  public boolean isAccountNonExpired() {
+    return accountNonExpired;
+  }
+
+  public void setAccountNonExpired(boolean accountNonExpired) {
+    this.accountNonExpired = accountNonExpired;
+  }
+
+  @Override
+  public boolean isAccountNonLocked() {
+    return accountNonLocked;
+  }
+
+  public void setAccountNonLocked(boolean accountNonLocked) {
+    this.accountNonLocked = accountNonLocked;
+  }
+
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return credentialsNonExpired;
+  }
+
+  public void setCredentialsNonExpired(boolean credentialsNonExpired) {
+    this.credentialsNonExpired = credentialsNonExpired;
   }
 }

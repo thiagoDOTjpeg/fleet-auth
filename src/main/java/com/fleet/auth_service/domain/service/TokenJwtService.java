@@ -3,13 +3,15 @@ package com.fleet.auth_service.domain.service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fleet.auth_service.application.dto.TokenResponse;
+import com.fleet.auth_service.application.dto.response.TokenResponse;
 import com.fleet.auth_service.application.mapper.UserMapper;
 import com.fleet.auth_service.domain.model.User;
 import com.fleet.auth_service.infra.config.properties.JwtProperties;
 import com.fleet.auth_service.infra.repository.UserRepository;
+import com.fleet.auth_service.shared.exception.UnauthorizedException;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,23 +22,17 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class TokenJwtService {
-
-  private final UserRepository userRepository;
   private final JwtProperties jwtProperties;
-  private final UserMapper userMapper;
   private Algorithm algorithm;
 
-  public TokenJwtService(UserRepository userRepository, JwtProperties jwtProperties, UserMapper userMapper) {
-    this.userRepository = userRepository;
+  public TokenJwtService(JwtProperties jwtProperties) {
     this.jwtProperties = jwtProperties;
-    this.userMapper = userMapper;
   }
 
   @PostConstruct
@@ -44,28 +40,13 @@ public class TokenJwtService {
     this.algorithm = Algorithm.HMAC512(jwtProperties.getSecret());
   }
 
-  public TokenResponse createToken(User user) {
-    return generateTokenResponse(user);
+  public String generateAccessToken(User user) {
+    long accessExpMillis = jwtProperties.getExpiration().getAccessToken();
+    return buildJwt(user, Instant.now(), accessExpMillis);
   }
-
-  public TokenResponse refreshToken(String refreshToken) {
-    try {
-      DecodedJWT jwt = validateAndDecode(refreshToken);
-
-      String userId = jwt.getSubject();
-
-      User user = userRepository.findById(UUID.fromString(userId))
-              .orElseThrow(() -> new RuntimeException("Usuário não encontrado para o token fornecido"));
-
-      if (!user.getActive()) {
-        throw new RuntimeException("Usuário inativo. Realize login novamente.");
-      }
-
-      return generateTokenResponse(user);
-
-    } catch (JWTVerificationException e) {
-      throw new RuntimeException("Refresh token inválido ou expirado", e);
-    }
+  public String generateRefreshToken(User user) {
+    long refreshExpMillis = jwtProperties.getExpiration().getRefreshToken();
+    return buildJwt(user,  Instant.now(), refreshExpMillis);
   }
 
   public DecodedJWT validateAndDecode(String token) {
@@ -81,6 +62,15 @@ public class TokenJwtService {
       return verifier.verify(cleanToken);
     } catch (JWTVerificationException exception) {
       throw new RuntimeException("Token inválido ou expirado", exception);
+    }
+  }
+
+  public DecodedJWT decodeToken(String token) {
+    try {
+      String cleanToken = token.replace("Bearer ", "");
+      return JWT.decode(cleanToken);
+    } catch (JWTDecodeException exception) {
+      throw new UnauthorizedException("Token malformado");
     }
   }
 
@@ -103,27 +93,6 @@ public class TokenJwtService {
       return bearerToken.substring("Bearer ".length());
     }
     return null;
-  }
-
-
-  private TokenResponse generateTokenResponse(User user) {
-    Instant now = Instant.now();
-
-    long accessExpMillis = jwtProperties.getExpiration().getAccessToken();
-    long refreshExpMillis = jwtProperties.getExpiration().getRefreshToken();
-
-    String accessToken = buildJwt(user, now, accessExpMillis);
-    String refreshToken = buildJwt(user, now, refreshExpMillis);
-
-    long expiresInSeconds = accessExpMillis / 1000;
-
-    return new TokenResponse(
-            accessToken,
-            refreshToken,
-            Instant.now().plusSeconds(expiresInSeconds),
-            "Bearer",
-            userMapper.toUserSummary(user)
-    );
   }
 
   private String buildJwt(User user, Instant now, long expirationMillis) {

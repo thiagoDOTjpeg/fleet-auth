@@ -1,4 +1,4 @@
-package com.fleet.auth_service.application.dto;
+package com.fleet.auth_service.application.dto.summary;
 
 import com.fleet.auth_service.domain.model.Role;
 

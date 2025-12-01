@@ -25,6 +25,7 @@ spring:
         jdbc:
           time_zone: UTC
         default_schema: auth
+        dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
 
   data:
@@ -51,6 +52,7 @@ server:
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain
+  forward-headers-strategy: framework
 
 management:
   endpoints:
