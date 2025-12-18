@@ -20,7 +20,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -41,12 +45,14 @@ public class TokenJwtService {
   }
 
   public String generateAccessToken(User user) {
+    String randomJWTid = UUID.randomUUID().toString();
     long accessExpMillis = jwtProperties.getExpiration().getAccessToken();
-    return buildJwt(user, Instant.now(), accessExpMillis);
+    return buildJwt(user, Instant.now(), accessExpMillis, randomJWTid);
   }
   public String generateRefreshToken(User user) {
+    String randomJWTid = UUID.randomUUID().toString();
     long refreshExpMillis = jwtProperties.getExpiration().getRefreshToken();
-    return buildJwt(user,  Instant.now(), refreshExpMillis);
+    return buildJwt(user,  Instant.now(), refreshExpMillis, randomJWTid);
   }
 
   public DecodedJWT validateAndDecode(String token) {
@@ -95,7 +101,17 @@ public class TokenJwtService {
     return null;
   }
 
-  private String buildJwt(User user, Instant now, long expirationMillis) {
+  public static String hashToken(String rawToken) {
+    try {
+      MessageDigest digest = MessageDigest.getInstance("SHA-256");
+      byte[] hash = digest.digest(rawToken.getBytes(StandardCharsets.UTF_8));
+      return Base64.getEncoder().encodeToString(hash);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException("Erro ao calcular o hash SHA-256", e);
+    }
+  }
+
+  private String buildJwt(User user, Instant now, long expirationMillis, String tokenJWTid) {
     return JWT.create()
             .withIssuer(jwtProperties.getIssuer())
             .withSubject(user.getId().toString())
@@ -103,6 +119,7 @@ public class TokenJwtService {
             .withClaim("name", user.getName())
             .withClaim("email", user.getEmail())
             .withArrayClaim("roles", new String[]{user.getUserType().toString()})
+            .withJWTId(tokenJWTid)
             .withIssuedAt(now)
             .withExpiresAt(now.plusMillis(expirationMillis))
             .sign(algorithm);

@@ -19,7 +19,8 @@ public class UserSession {
   @JsonProperty("rt_hash")
   private String refreshTokenHashed;
 
-
+  public UserSession() {
+  }
 
   public UserSession(UUID sessionId, String ipAddress, String deviceInfo, Instant issuedAt, UUID userId, String refreshTokenHashed) {
     this.sessionId = sessionId;

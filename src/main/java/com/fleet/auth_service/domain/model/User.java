@@ -23,6 +23,8 @@ public class User implements UserDetails {
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
   private Set<Role> roles;
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  private List<RefreshToken> refreshTokens = new ArrayList<>();
   @Column(name = "created_at")
   private Date createdAt;
   @Column(name = "updated_at")
@@ -39,19 +41,28 @@ public class User implements UserDetails {
   public User() {
   }
 
-  public User(UUID id, String name, String email, String password, UserType userType, Set<Role> roles, Date createdAt, Date updatedAt, boolean enabled, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired) {
+  public User(UUID id, String name, String email, String password, UserType userType, Set<Role> roles, List<RefreshToken> refreshTokens, Date createdAt, Date updatedAt, boolean enabled, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired) {
     this.id = id;
     this.name = name;
     this.email = email;
     this.password = password;
     this.userType = userType;
     this.roles = roles;
+    this.refreshTokens = refreshTokens;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
     this.enabled = enabled;
     this.accountNonExpired = accountNonExpired;
     this.accountNonLocked = accountNonLocked;
     this.credentialsNonExpired = credentialsNonExpired;
+  }
+
+  public List<RefreshToken> getRefreshTokens() {
+    return refreshTokens;
+  }
+
+  public void setRefreshTokens(List<RefreshToken> refreshTokens) {
+    this.refreshTokens = refreshTokens;
   }
 
   public UUID getId() {
