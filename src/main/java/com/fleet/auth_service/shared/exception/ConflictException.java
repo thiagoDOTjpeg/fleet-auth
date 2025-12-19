@@ -1,7 +1,7 @@
 package com.fleet.auth_service.shared.exception;
 
-public class ConflitException extends RuntimeException {
-  public ConflitException(String message) {
+public class ConflictException extends RuntimeException {
+  public ConflictException(String message) {
     super(message);
   }
 }
