@@ -1,4 +1,9 @@
 package com.fleet.auth_service.application.dto.request.metadata;
 
-public record ShopMetadata() {
-}
+import com.fleet.auth_service.application.dto.request.RegistrationMetadata;
+
+public record ShopMetadata(
+        String cnpj,
+        String address,
+        String openingHours
+) implements RegistrationMetadata {}

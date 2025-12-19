@@ -1,4 +1,9 @@
 package com.fleet.auth_service.application.dto.request.metadata;
 
-public record DriverMetadata() {
-}
+import com.fleet.auth_service.application.dto.request.RegistrationMetadata;
+
+public record DriverMetadata(
+        String cnh,
+        String vehiclePlate,
+        String vehicleType
+) implements RegistrationMetadata {}
