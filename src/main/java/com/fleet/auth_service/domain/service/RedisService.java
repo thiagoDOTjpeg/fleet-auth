@@ -29,7 +29,7 @@ public class RedisService {
   }
 
   public void saveSession(UUID userId, UserSession session, Duration ttl) {
-    this.set(SESSION_PREFIX + userId + session.getSessionId(), session, ttl);
+    this.set(SESSION_PREFIX + userId + ":" + session.getSessionId(), session, ttl);
   }
 
   public <T> Optional<T> get(String key, Class<T> targetClass) {

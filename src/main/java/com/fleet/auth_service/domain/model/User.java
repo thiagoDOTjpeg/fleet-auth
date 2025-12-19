@@ -12,7 +12,7 @@ import java.util.*;
 public class User implements UserDetails {
   @Id
   private UUID id;
-  @Column(unique = true)
+  @Column()
   private String name;
   @Column(unique = true)
   private String email;
