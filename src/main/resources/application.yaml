@@ -41,6 +41,17 @@ spring:
           min-idle: 2
           max-wait: -1ms
         shutdown-timeout: 100ms
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: ${RABBIT_USER:user}
+    password: ${RABBIT_PASSWORD:password}
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+
   web:
     error:
       include-message: always
