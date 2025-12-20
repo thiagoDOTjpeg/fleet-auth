@@ -43,8 +43,8 @@ spring:
         shutdown-timeout: 100ms
 
   rabbitmq:
-    host: localhost
-    port: 5672
+    host: ${RABBIT_HOST:localhost}
+    port: ${RABBIT_PORT:5672}
     username: ${RABBIT_USER:user}
     password: ${RABBIT_PASSWORD:password}
     publisher-confirm-type: correlated

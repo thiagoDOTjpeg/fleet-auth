@@ -27,8 +27,8 @@ public class RefreshToken {
   @Column(nullable = false)
   private boolean revoked;
 
-  @Column(name =  "expiry_date", nullable = false)
-  private Instant expiryDate;
+  @Column(name =  "expires_at", nullable = false)
+  private Instant expiresAt;
 
   @Column(name = "created_at", nullable = false)
   private Instant createdAt;
@@ -39,7 +39,7 @@ public class RefreshToken {
     this.user = user;
     this.tokenHash = tokenHash;
     this.parentId = parentId;
-    this.expiryDate = expiryDate;
+    this.expiresAt = expiryDate;
     this.used = false;
     this.revoked = false;
     this.createdAt = Instant.now();
@@ -93,12 +93,12 @@ public class RefreshToken {
     this.revoked = revoked;
   }
 
-  public Instant getExpiryDate() {
-    return expiryDate;
+  public Instant getExpiresAt() {
+    return expiresAt;
   }
 
-  public void setExpiryDate(Instant expiryDate) {
-    this.expiryDate = expiryDate;
+  public void setExpiresAt(Instant expiryDate) {
+    this.expiresAt = expiryDate;
   }
 
   public Instant getCreatedAt() {

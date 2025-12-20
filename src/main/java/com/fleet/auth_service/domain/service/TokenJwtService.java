@@ -8,6 +8,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fleet.auth_service.application.dto.response.TokenResponse;
 import com.fleet.auth_service.application.mapper.UserMapper;
+import com.fleet.auth_service.domain.model.Role;
 import com.fleet.auth_service.domain.model.User;
 import com.fleet.auth_service.infra.config.properties.JwtProperties;
 import com.fleet.auth_service.infra.repository.UserRepository;
@@ -118,7 +119,10 @@ public class TokenJwtService {
             .withAudience(jwtProperties.getAudience())
             .withClaim("name", user.getName())
             .withClaim("email", user.getEmail())
-            .withArrayClaim("roles", new String[]{user.getUserType().toString()})
+            .withClaim("userType", user.getUserType().toString())
+            .withArrayClaim("roles", user.getRoles().stream()
+                    .map(Role::getName)
+                    .toArray(String[]::new))
             .withJWTId(tokenJWTid)
             .withIssuedAt(now)
             .withExpiresAt(now.plusMillis(expirationMillis))

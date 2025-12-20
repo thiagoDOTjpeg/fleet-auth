@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.accept.MissingApiVersionException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -30,6 +31,18 @@ public class GlobalExceptionHandler {
   @NullMarked
   public ResponseEntity<ExceptionMessage> handleUnauthorizedException(UnauthorizedException ex, WebRequest request) {
     return new ResponseEntity<>(createExceptionMessage(ex.getMessage(), HttpStatus.UNAUTHORIZED, request.getDescription(false)), HttpStatus.UNAUTHORIZED);
+  }
+
+  @ExceptionHandler(BadRequestException.class)
+  @NullMarked
+  public ResponseEntity<ExceptionMessage> handleAllBadRequestExceptions(BadRequestException ex, WebRequest request) {
+    return new ResponseEntity<>(createExceptionMessage(ex.getMessage(), HttpStatus.BAD_REQUEST, request.getDescription(false)), HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  @NullMarked
+  public ResponseEntity<ExceptionMessage> handleAllIllegalArgumentExceptions(IllegalArgumentException ex, WebRequest request) {
+    return new ResponseEntity<>(createExceptionMessage(ex.getMessage(), HttpStatus.BAD_REQUEST, request.getDescription(false)), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(MissingApiVersionException.class)
@@ -73,6 +86,23 @@ public class GlobalExceptionHandler {
 
     return new ResponseEntity<>(
             createExceptionMessage("Erro de validação: " + errors, HttpStatus.BAD_REQUEST, request.getDescription(false)),
+            HttpStatus.BAD_REQUEST
+    );
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  @NullMarked
+  public ResponseEntity<ExceptionMessage> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, WebRequest request) {
+    String errorMessage = "Corpo da requisição inválido ou malformado.";
+
+    if (ex.getMessage() != null && ex.getMessage().contains("Missing property")) {
+      errorMessage = "O campo 'metadata' é obrigatório quando 'userType' é informado.";
+    }
+
+    logger.debug("Erro de desserialização JSON: {}", ex.getMessage());
+
+    return new ResponseEntity<>(
+            createExceptionMessage(errorMessage, HttpStatus.BAD_REQUEST, request.getDescription(false)),
             HttpStatus.BAD_REQUEST
     );
   }

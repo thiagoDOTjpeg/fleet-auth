@@ -18,6 +18,6 @@ public class RabbitMqUserEventPublisher implements UserEventPublisher {
 
   @Override
   public void publishUserRegistered(UserRegisteredEvent event) {
-    rabbitTemplate.convertAndSend("exchange.user", "routing.key", event);
+    rabbitTemplate.convertAndSend("exchange.user", "user.registered", event);
   }
 }
