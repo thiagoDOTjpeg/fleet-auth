@@ -17,6 +17,6 @@ public record LoginRequest(
         String password,
 
         @NotNull(message = "O tipo de usuário é obrigatório")
-        UserType type
+        UserType userType
 ) {
 }

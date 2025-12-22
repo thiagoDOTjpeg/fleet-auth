@@ -25,7 +25,7 @@ public class RegistrationFactory {
 
   public RegistrationStrategy getStrategy(UserType userType) {
     RegistrationStrategy strategy = this.strategies.get(userType);
-    if(strategy == null) throw new IllegalArgumentException("Invalid user type");
+    if(strategy == null) throw new IllegalArgumentException("Invalid user userType");
     return strategy;
   }
 }

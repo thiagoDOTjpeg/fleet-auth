@@ -68,7 +68,7 @@ public class TokenJwtService {
 
       return verifier.verify(cleanToken);
     } catch (JWTVerificationException exception) {
-      throw new RuntimeException("Token inválido ou expirado", exception);
+      throw new RuntimeException("Expired or invalid token", exception);
     }
   }
 
@@ -77,7 +77,7 @@ public class TokenJwtService {
       String cleanToken = token.replace("Bearer ", "");
       return JWT.decode(cleanToken);
     } catch (JWTDecodeException exception) {
-      throw new UnauthorizedException("Token malformado");
+      throw new UnauthorizedException("Malformatted token");
     }
   }
 
@@ -108,7 +108,7 @@ public class TokenJwtService {
       byte[] hash = digest.digest(rawToken.getBytes(StandardCharsets.UTF_8));
       return Base64.getEncoder().encodeToString(hash);
     } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException("Erro ao calcular o hash SHA-256", e);
+      throw new RuntimeException("Error to calculate SHA-256 hash", e);
     }
   }
 

@@ -65,15 +65,14 @@ public class RegisterAuthUseCase {
 
     User savedUser = userRepository.save(userToRegister);
 
-
     String accessToken = tokenJwtService.generateAccessToken(savedUser);
     String refreshToken = tokenJwtService.generateRefreshToken(savedUser);
     String hashRefresh = TokenJwtService.hashToken(refreshToken);
 
     Instant issueTime = Instant.now();
 
-    refreshTokenRepository.save(new RefreshToken(savedUser, hashRefresh, null, issueTime.plus(7, ChronoUnit.DAYS)));
     UserSession userSession = new UserSession(UUID.randomUUID(), ipAddress, userAgent, issueTime, savedUser.getId(), hashRefresh);
+    refreshTokenRepository.save(new RefreshToken(savedUser, hashRefresh, null, userSession.getSessionId(), issueTime.plus(7, ChronoUnit.DAYS)));
 
     redisService.saveSession(savedUser.getId(), userSession, Duration.ofDays(7));
 

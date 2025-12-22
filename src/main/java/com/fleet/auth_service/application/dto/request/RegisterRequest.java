@@ -27,7 +27,7 @@ public record RegisterRequest(
 //        )
         String password,
 
-        @NotNull(message = "User type is required")
+        @NotNull(message = "User userType is required")
         UserType userType,
 
         @JsonTypeInfo(

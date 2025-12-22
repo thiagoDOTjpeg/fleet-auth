@@ -21,11 +21,17 @@ public class RefreshToken {
   @Column(name = "parent_id")
   private UUID parentId;
 
+  @Column(name = "session_id")
+  private UUID sessionId;
+
   @Column(nullable = false)
   private boolean used;
 
   @Column(nullable = false)
   private boolean revoked;
+
+  @Version
+  private Long version;
 
   @Column(name =  "expires_at", nullable = false)
   private Instant expiresAt;
@@ -35,14 +41,31 @@ public class RefreshToken {
 
   public RefreshToken() {}
 
-  public RefreshToken(User user, String tokenHash, UUID parentId, Instant expiryDate) {
+  public RefreshToken(User user, String tokenHash, UUID parentId, UUID sessionId, Instant expiryDate) {
     this.user = user;
     this.tokenHash = tokenHash;
     this.parentId = parentId;
+    this.sessionId = sessionId;
     this.expiresAt = expiryDate;
     this.used = false;
     this.revoked = false;
     this.createdAt = Instant.now();
+  }
+
+  public Long getVersion() {
+    return version;
+  }
+
+  public void setVersion(Long version) {
+    this.version = version;
+  }
+
+  public UUID getSessionId() {
+    return sessionId;
+  }
+
+  public void setSessionId(UUID sessionId) {
+    this.sessionId = sessionId;
   }
 
   public UUID getId() {

@@ -10,18 +10,17 @@ import com.fleet.auth_service.domain.service.RedisService;
 import com.fleet.auth_service.domain.service.TokenJwtService;
 import com.fleet.auth_service.infra.repository.RefreshTokenRepository;
 import com.fleet.auth_service.shared.exception.UnauthorizedException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -41,27 +40,35 @@ public class LoginUseCase {
     this.userMapper = userMapper;
   }
 
+  @Transactional
   public TokenResponse execute(LoginRequest request, String ipAddress, String userAgent) {
+    Authentication auth;
+    String usernameComposite = request.email() + ":" + request.userType();
     try {
-      Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
-      User user = (User) auth.getPrincipal();
-      if(user == null) throw new UnauthorizedException("Invalid email or password");
-      String accessToken = tokenJwtService.generateAccessToken(user);
-      String refreshToken = tokenJwtService.generateRefreshToken(user);
-      String refreshTokenHashed = TokenJwtService.hashToken(refreshToken);
+      auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(usernameComposite, request.password()));
 
-      RefreshToken tokenEntity = refreshTokenRepository.save(new RefreshToken(user, refreshTokenHashed, null, Instant.now().plus(7, ChronoUnit.DAYS)));
-      UserSession session = new UserSession(UUID.randomUUID(), ipAddress, userAgent, tokenEntity.getCreatedAt(), user.getId(), refreshTokenHashed);
-
-      redisService.saveSession(user.getId(), session, Duration.ofDays(7));
-
-      return new TokenResponse(accessToken, refreshToken, userMapper.toUserSummary(user));
-
-    } catch (Exception e) {
-      if(e instanceof AuthenticationException) {
-        throw new UnauthorizedException("Email or password is invalid/wrong");
-      }
-      throw new RuntimeException("Email or password is invalid/wrong");
+    } catch (AuthenticationException e) {
+      throw new UnauthorizedException("Email or password is invalid/wrong");
     }
+
+    User user = (User) auth.getPrincipal();
+
+    if(user == null) throw new UnauthorizedException("Invalid email or password");
+
+    if (!user.getUserType().equals(request.userType())) {
+      throw new UnauthorizedException("User type is invalid for this request");
+    }
+
+    String accessToken = tokenJwtService.generateAccessToken(user);
+    String refreshToken = tokenJwtService.generateRefreshToken(user);
+    String refreshTokenHashed = TokenJwtService.hashToken(refreshToken);
+
+    UserSession session = new UserSession(UUID.randomUUID(), ipAddress, userAgent, Instant.now().plus(7, ChronoUnit.DAYS), user.getId(), refreshTokenHashed);
+    refreshTokenRepository.save(new RefreshToken(user, refreshTokenHashed, null, session.getSessionId(),Instant.now().plus(7, ChronoUnit.DAYS)));
+
+    redisService.saveSession(user.getId(), session, Duration.ofDays(7));
+
+    return new TokenResponse(accessToken, refreshToken, userMapper.toUserSummary(user));
+
   }
 }

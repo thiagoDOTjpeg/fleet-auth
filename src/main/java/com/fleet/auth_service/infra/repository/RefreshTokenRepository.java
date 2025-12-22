@@ -1,6 +1,7 @@
 package com.fleet.auth_service.infra.repository;
 
 import com.fleet.auth_service.domain.model.RefreshToken;
+import jakarta.transaction.Transactional;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -20,6 +21,7 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
   void revokeAllByUser(UUID userId);
 
   @Modifying
+  @Transactional
   @Query("UPDATE refresh_tokens r SET r.revoked = true WHERE r.user.id = :userId AND r.revoked = false")
   void revokeAllActiveByUser(UUID userId);
 }

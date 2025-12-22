@@ -31,6 +31,29 @@ public class AuthController {
     this.registerAuthUseCase = registerAuthUseCase;
   }
 
+  @PostMapping(value = "/refresh", version = "1.0", produces = MediaType.APPLICATION_JSON_VALUE)
+  @NullMarked
+  public ResponseEntity<TokenResponse> refresh(
+          @CookieValue(value = "refresh_token", required = true) String refresh_token,
+          @RequestHeader(value = "User-Agent", required = true) String userAgent,
+          HttpServletRequest request
+          ) {
+    String ipAddress = extractClientIp(request);
+    TokenResponse token = refreshTokenUseCase.execute(refresh_token, ipAddress, userAgent);
+
+    ResponseCookie cookie = ResponseCookie.from("refresh_token", token.refreshToken())
+            .httpOnly(true)
+            .secure(false)
+            .path("/api/auth/refresh")
+            .maxAge(7 * 24 * 60 * 60)
+            .sameSite("Strict")
+            .build();
+
+    return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .body(new TokenResponse(token.accessToken(), null, token.userSummary()));
+  }
+
   @PostMapping(value = "/register", version = "1.0", produces =  MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
   @NullMarked
   public ResponseEntity<TokenResponse> register(@RequestBody @Valid RegisterRequest registerRequest, @RequestHeader(value = "User-Agent", required = false) String userAgent, HttpServletRequest request) {
@@ -41,7 +64,7 @@ public class AuthController {
     ResponseCookie cookie = ResponseCookie.from("refresh_token", token.refreshToken())
             .httpOnly(true)
             .secure(false) // HTTPS
-            .path("/auth/refresh")
+            .path("/api/auth/refresh")
             .maxAge(7 * 24 * 60 * 60)
             .sameSite("Strict")
             .build();
@@ -57,7 +80,7 @@ public class AuthController {
   @NullMarked
   public ResponseEntity<TokenResponse> login(
           @RequestBody @Valid LoginRequest loginRequest,
-          @RequestHeader(value = "User-Agent", required = false) String userAgent,
+          @RequestHeader(value = "User-Agent", required = true) String userAgent,
           HttpServletRequest request
   ) {
     String ipAddress = extractClientIp(request);
@@ -67,7 +90,7 @@ public class AuthController {
     ResponseCookie cookie = ResponseCookie.from("refresh_token", token.refreshToken())
             .httpOnly(true)
             .secure(false) // HTTPS
-            .path("/auth/refresh")
+            .path("/api/auth/refresh")
             .maxAge(7 * 24 * 60 * 60)
             .sameSite("Strict")
             .build();
