@@ -10,6 +10,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.accept.MissingApiVersionException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -25,6 +26,12 @@ public class GlobalExceptionHandler {
 
   private ExceptionMessage createExceptionMessage(String message, HttpStatus status, String details) {
     return new ExceptionMessage(new Date(), status.value(), status.getReasonPhrase(), message, details);
+  }
+
+  @ExceptionHandler(MissingRequestCookieException.class)
+  @NullMarked
+  public ResponseEntity<ExceptionMessage> handleAllMissignRequestCookieExceptions(MissingRequestCookieException ex, WebRequest request) {
+    return new ResponseEntity<>(createExceptionMessage(ex.getMessage(), HttpStatus.BAD_REQUEST, request.getDescription(false)), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(UnauthorizedException.class)

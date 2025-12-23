@@ -32,6 +32,7 @@ public class DriverStrategy implements RegistrationStrategy{
   public void prepare(User user, RegistrationMetadata metadata) {
     Role driverRole = roleRepository.findRoleByName("ROLE_DRIVER")
             .orElseThrow(() -> new ResourceNotFoundException("Role 'ROLE_DRIVER' not found"));
+    user.addRole(driverRole);
 
     if(!(metadata instanceof DriverMetadata)) throw new IllegalArgumentException("Invalid metadata for DRIVER");
   }

@@ -8,24 +8,35 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NullMarked;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final TokenJwtService jwtService;
 
-  public JwtAuthenticationFilter(TokenJwtService jwtService) {
+  @Qualifier("handlerExceptionResolver")
+  private final HandlerExceptionResolver resolver;
+
+  @Autowired
+  public JwtAuthenticationFilter(TokenJwtService jwtService, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
     this.jwtService = jwtService;
+    this.resolver = resolver;
   }
 
   @Override
   @NullMarked
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-    String token = jwtService.resolveToken(request);
+    try {
+      String token = jwtService.resolveToken(request);
       if (token != null) {
         DecodedJWT decodedJWT = jwtService.validateAndDecode(token);
         Authentication auth = jwtService.getAuthentication(decodedJWT);
@@ -34,7 +45,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           SecurityContextHolder.getContext().setAuthentication(auth);
         }
       }
-    filterChain.doFilter(request, response);
+      filterChain.doFilter(request, response);
+    } catch (Exception e) {
+      resolver.resolveException(request, response, null, e);
+    }
   }
 
   @Override

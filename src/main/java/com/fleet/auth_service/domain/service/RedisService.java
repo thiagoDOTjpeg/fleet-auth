@@ -23,6 +23,12 @@ public class RedisService {
     this.redisTemplate = redisTemplate;
   }
 
+  public void addBlacklistJti(UUID userId, UUID tokenJti, Duration ttl) {
+    String blacklistKey = "black_list:" + userId + ":" + tokenJti;
+
+    redisTemplate.opsForValue().set(blacklistKey, true, ttl);
+  }
+
   public void saveSession(UUID userId, UserSession session, Duration ttl) {
     String sessionKey = getSessionKey(userId, session.getSessionId());
     String indexKey = getIndexKey(userId);

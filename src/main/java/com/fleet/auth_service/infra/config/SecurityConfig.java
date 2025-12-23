@@ -20,12 +20,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-  private final TokenJwtService tokenJwtService;
-
-  public SecurityConfig(TokenJwtService tokenJwtService) {
-    this.tokenJwtService = tokenJwtService;
-  }
-
   @Bean
   public SecurityFilterChain securityFilterChain(
           HttpSecurity http,
@@ -44,6 +38,7 @@ public class SecurityConfig {
                             "/api/auth/login",
                             "/api/auth/register",
                             "/api/auth/refresh",
+                            "/api/auth/logout",
                             "/error"
                     ).permitAll()
                     .requestMatchers("/actuator/health", "/actuator/info").permitAll()
@@ -63,11 +58,6 @@ public class SecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
-
-  @Bean
-  public JwtAuthenticationFilter jwtAuthenticationFilter() {
-    return new JwtAuthenticationFilter(tokenJwtService);
-  }
 
   @Bean
   public JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint() {

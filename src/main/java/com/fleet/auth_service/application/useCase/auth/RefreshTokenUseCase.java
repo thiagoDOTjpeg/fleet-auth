@@ -55,7 +55,7 @@ public class RefreshTokenUseCase {
     RefreshToken currentToken = refreshTokenRepository.findByTokenHash(tokenHash).orElseThrow(() -> new UnauthorizedException("Invalid refresh token"));
 
 
-    if(currentToken.isRevoked()) {
+    if(currentToken.isRevoked() || currentToken.isUsed()) {
       refreshTokenRepository.revokeAllActiveByUser(currentToken.getUser().getId());
       redisService.deleteAllSession(currentToken.getUser().getId());
 
@@ -63,11 +63,7 @@ public class RefreshTokenUseCase {
       throw new UnauthorizedException("Invalid refresh token");
     }
 
-    if(currentToken.getExpiresAt().isBefore(Instant.now())) {
-      throw new UnauthorizedException("Invalid refresh token");
-    }
-
-    currentToken.setRevoked(true);
+    currentToken.setUsed(true);
     try {
       refreshTokenRepository.save(currentToken);
     } catch (OptimisticLockingFailureException e) {
@@ -89,8 +85,6 @@ public class RefreshTokenUseCase {
             user.getId(),
             newRefreshTokenHash
     );
-    redisService.saveSession(user.getId(), session, Duration.ofDays(7));
-    redisService.deleteSession(user.getId(), currentToken.getSessionId());
 
     RefreshToken newTokenEntity = new RefreshToken(
             user,
@@ -100,6 +94,8 @@ public class RefreshTokenUseCase {
             Instant.now().plus(7, ChronoUnit.DAYS)
     );
     refreshTokenRepository.save(newTokenEntity);
+    redisService.saveSession(user.getId(), session, Duration.ofDays(7));
+    redisService.deleteSession(user.getId(), currentToken.getSessionId());
 
     return new TokenResponse(newAccessToken, newRefreshToken, userMapper.toUserSummary(user));
 
