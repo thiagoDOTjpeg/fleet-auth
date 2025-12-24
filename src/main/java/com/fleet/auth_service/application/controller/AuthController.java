@@ -3,10 +3,7 @@ package com.fleet.auth_service.application.controller;
 import com.fleet.auth_service.application.dto.request.LoginRequest;
 import com.fleet.auth_service.application.dto.request.RegisterRequest;
 import com.fleet.auth_service.application.dto.response.TokenResponse;
-import com.fleet.auth_service.application.useCase.auth.LoginUseCase;
-import com.fleet.auth_service.application.useCase.auth.LogoutUseCase;
-import com.fleet.auth_service.application.useCase.auth.RefreshTokenUseCase;
-import com.fleet.auth_service.application.useCase.auth.RegisterAuthUseCase;
+import com.fleet.auth_service.application.useCase.auth.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.jspecify.annotations.NullMarked;
@@ -29,20 +26,29 @@ public class AuthController {
   private final LogoutUseCase logoutUseCase;
   private final RefreshTokenUseCase refreshTokenUseCase;
   private final RegisterAuthUseCase registerAuthUseCase;
+  private final ValidateUseCase validateUseCase;
 
   @Autowired
-  public AuthController(LoginUseCase loginUseCase, LogoutUseCase logoutUseCase, RefreshTokenUseCase refreshTokenUseCase, RegisterAuthUseCase registerAuthUseCase) {
+  public AuthController(LoginUseCase loginUseCase, LogoutUseCase logoutUseCase, RefreshTokenUseCase refreshTokenUseCase, RegisterAuthUseCase registerAuthUseCase, ValidateUseCase validateUseCase) {
     this.loginUseCase = loginUseCase;
     this.logoutUseCase = logoutUseCase;
     this.refreshTokenUseCase = refreshTokenUseCase;
     this.registerAuthUseCase = registerAuthUseCase;
+    this.validateUseCase = validateUseCase;
+  }
+
+  @GetMapping(value = "/validate", version = "1.0")
+  @NullMarked
+  public ResponseEntity<Void> validate(@RequestHeader("Authorization") String bearerToken){
+    validateUseCase.execute(bearerToken);
+
+    return ResponseEntity.ok().build();
   }
 
   @PostMapping(value = "/logout", version = "1.0")
   @NullMarked
   public ResponseEntity<Void> logout(@CookieValue(value = "refresh_token", required = false) @Nullable String refreshToken, @RequestHeader(value = "Authorization", required = false) @Nullable String bearerToken) {
     if (refreshToken != null) {
-      log.info("fui chamado");
       logoutUseCase.execute(refreshToken, bearerToken);
     }
 

@@ -23,7 +23,6 @@ public class CorsProperties {
   private Boolean allowCredentials = true;
   private Long maxAge = 3600L;
 
-  // Getters and Setters
   public List<String> getAllowedOrigins() {
     return allowedOrigins;
   }

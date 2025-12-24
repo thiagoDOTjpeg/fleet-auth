@@ -6,7 +6,6 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
-import com.fleet.auth_service.infra.config.properties.RedisProperties;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,11 +17,6 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class RedisConfig {
 
-  private final RedisProperties redisProperties;
-
-  public RedisConfig(RedisProperties redisProperties) {
-    this.redisProperties = redisProperties;
-  }
 
   @Bean
   public ObjectMapper redisObjectMapper() {
@@ -63,13 +57,5 @@ public class RedisConfig {
     template.afterPropertiesSet();
 
     return template;
-  }
-
-  public Long getSessionTtl() {
-    return redisProperties.getSessionTtl();
-  }
-
-  public Long getTokenBlacklistTtl() {
-    return redisProperties.getTokenBlacklistTtl();
   }
 }

@@ -140,7 +140,3 @@ app:
     locations: classpath:db/migration
     baseline-version: "0"
     validate-on-migrate: true
-
-  redis:
-    session-ttl: 86400000
-    token-blacklist-ttl: 604800000

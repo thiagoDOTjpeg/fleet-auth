@@ -63,6 +63,7 @@ public class TokenJwtService {
       Algorithm algorithm = Algorithm.HMAC512(jwtProperties.getSecret());
 
       JWTVerifier verifier = JWT.require(algorithm)
+              .withAudience(jwtProperties.getAudience())
               .withIssuer(jwtProperties.getIssuer())
               .build();
 

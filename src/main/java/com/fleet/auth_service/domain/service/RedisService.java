@@ -16,6 +16,7 @@ public class RedisService {
   private final RedisTemplate<String, Object> redisTemplate;
 
   private static final String SESSION_KEY_PREFIX = "session:";
+  private static final String BLACKLIST_TOKEN_PREFIX = "black_list:";
   private static final String USER_SESSIONS_INDEX_PREFIX = "user_sessions_index:";
 
   @Autowired
@@ -23,8 +24,13 @@ public class RedisService {
     this.redisTemplate = redisTemplate;
   }
 
+  public boolean isBlacklistedJti(UUID userId, UUID tokenJti) {
+    String blacklistKey = getBlacklistKey(userId, tokenJti);
+    return this.get(blacklistKey, boolean.class).isPresent();
+  }
+
   public void addBlacklistJti(UUID userId, UUID tokenJti, Duration ttl) {
-    String blacklistKey = "black_list:" + userId + ":" + tokenJti;
+    String blacklistKey = getBlacklistKey(userId, tokenJti);
 
     redisTemplate.opsForValue().set(blacklistKey, true, ttl);
   }
@@ -73,6 +79,10 @@ public class RedisService {
     } catch (ClassCastException e) {
       return Optional.empty();
     }
+  }
+
+  private String getBlacklistKey(UUID userId, UUID tokenJti) {
+    return SESSION_KEY_PREFIX + userId + ":" + tokenJti;
   }
 
   private String getSessionKey(UUID userId, UUID sessionId) {

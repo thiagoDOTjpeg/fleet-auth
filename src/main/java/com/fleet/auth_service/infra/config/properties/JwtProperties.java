@@ -14,7 +14,6 @@ public class JwtProperties {
   private String prefix = "Bearer ";
   private Expiration expiration = new Expiration();
 
-  // Getters and Setters
   public String getSecret() {
     return secret;
   }
@@ -64,8 +63,8 @@ public class JwtProperties {
   }
 
   public static class Expiration {
-    private Long accessToken = 900000L;      // 15 minutos
-    private Long refreshToken = 604800000L;  // 7 dias
+    private Long accessToken = 900000L;
+    private Long refreshToken = 604800000L;
 
     public Long getAccessToken() {
       return accessToken;
