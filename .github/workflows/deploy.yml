@@ -35,5 +35,5 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            seusuer/fleet-auth-service:develop
-            seusuer/fleet-auth-service:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/fleet-auth-service:develop
+            ${{ secrets.DOCKERHUB_USERNAME }}/fleet-auth-service:${{ github.sha }}
