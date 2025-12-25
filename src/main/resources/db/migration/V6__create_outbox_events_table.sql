@@ -1,5 +1,7 @@
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 CREATE TABLE auth.outbox_events (
-                                    id UUID PRIMARY KEY,
+                                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                                     aggregate_type VARCHAR(50) NOT NULL,
                                     aggregate_id VARCHAR(255) NOT NULL,
                                     type VARCHAR(100) NOT NULL,

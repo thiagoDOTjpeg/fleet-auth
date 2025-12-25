@@ -75,13 +75,8 @@ public class RegisterAuthUseCase {
     refreshTokenRepository.save(new RefreshToken(savedUser, hashRefresh, null, userSession.getSessionId(), issueTime.plus(7, ChronoUnit.DAYS)));
 
     redisService.saveSession(savedUser.getId(), userSession, Duration.ofDays(7));
+    strategy.execute(savedUser, registerRequest.metadata());
 
-    TransactionSynchronizationManager.registerSynchronization( new TransactionSynchronization() {
-      @Override
-      public void afterCommit() {
-        strategy.execute(savedUser, registerRequest.metadata());
-      }
-    });
     return new TokenResponse(accessToken, refreshToken, userMapper.toUserSummary(savedUser));
   }
 }
