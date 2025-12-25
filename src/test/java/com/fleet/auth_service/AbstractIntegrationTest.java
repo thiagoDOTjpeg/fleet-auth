@@ -11,7 +11,7 @@ public abstract class AbstractIntegrationTest {
   @SuppressWarnings("resource")
   static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
           DockerImageName.parse("postgis/postgis:14-3.3").asCompatibleSubstituteFor("postgres")
-  ).withInitScript("init-schema.sql");;
+  ).withInitScript("init-schema.sql");
 
   static {
     postgres.start();
