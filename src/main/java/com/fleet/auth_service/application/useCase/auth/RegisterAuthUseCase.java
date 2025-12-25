@@ -76,7 +76,7 @@ public class RegisterAuthUseCase {
 
     redisService.saveSession(savedUser.getId(), userSession, Duration.ofDays(7));
 
-    TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+    TransactionSynchronizationManager.registerSynchronization( new TransactionSynchronization() {
       @Override
       public void afterCommit() {
         strategy.execute(savedUser, registerRequest.metadata());

@@ -60,9 +60,7 @@ public class TokenJwtService {
     try {
       String cleanToken = token.replace("Bearer ", "");
 
-      Algorithm algorithm = Algorithm.HMAC512(jwtProperties.getSecret());
-
-      JWTVerifier verifier = JWT.require(algorithm)
+      JWTVerifier verifier = JWT.require(this.algorithm)
               .withAudience(jwtProperties.getAudience())
               .withIssuer(jwtProperties.getIssuer())
               .build();
