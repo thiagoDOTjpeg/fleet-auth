@@ -82,7 +82,7 @@ public class RedisService {
   }
 
   private String getBlacklistKey(UUID userId, UUID tokenJti) {
-    return SESSION_KEY_PREFIX + userId + ":" + tokenJti;
+    return BLACKLIST_TOKEN_PREFIX + userId + ":" + tokenJti;
   }
 
   private String getSessionKey(UUID userId, UUID sessionId) {

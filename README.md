@@ -4,5 +4,5 @@ Microsserviço responsável pela autenticação e autorização de utilizadores 
 
 ## 🛠 Tecnologias
 - **Linguagem:** Java 21 (Spring Boot 4)
-- **Base de Dados:** PostgreSQL (`db_fleet_orders` schema `orders`)
+- **Base de Dados:** PostgreSQL (`db_fleet_orders` schema `auth`)
 - **Segurança:** JWT (JSON Web Tokens)

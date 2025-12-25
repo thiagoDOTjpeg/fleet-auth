@@ -17,6 +17,7 @@ buildNumber.properties
 .settings/
 .springBeans
 .sts4-cache
+.idea/
 bin/
 *.iml
 

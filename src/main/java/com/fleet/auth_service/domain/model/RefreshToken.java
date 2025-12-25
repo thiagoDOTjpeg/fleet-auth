@@ -1,6 +1,7 @@
 package com.fleet.auth_service.domain.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -36,6 +37,7 @@ public class RefreshToken {
   @Column(name =  "expires_at", nullable = false)
   private Instant expiresAt;
 
+  @CreationTimestamp
   @Column(name = "created_at", nullable = false)
   private Instant createdAt;
 
