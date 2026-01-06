@@ -35,6 +35,9 @@ public class SecurityConfig {
             .httpBasic(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(
+                            "/api-docs/**",
+                            "/swagger-ui/**",
+                            "/swagger-ui.html",
                             "/api/auth/login",
                             "/api/auth/register",
                             "/api/auth/refresh",

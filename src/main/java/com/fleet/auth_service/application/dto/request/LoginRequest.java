@@ -1,22 +1,27 @@
 package com.fleet.auth_service.application.dto.request;
 
 import com.fleet.auth_service.domain.enums.UserType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+@Schema(description = "User login request")
 public record LoginRequest(
-        @NotBlank(message = "O email não pode estar em branco")
-        @Email(message = "Deve ser um endereço de email válido")
-        @Size(max = 255, message = "O email não pode ter mais de 255 caracteres")
+        @Schema(description = "User's email address", example = "user@example.com", requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotBlank(message = "Email cannot be blank")
+        @Email(message = "Must be a valid email address")
+        @Size(max = 255, message = "Email must not exceed 255 characters")
         String email,
 
-        @NotBlank(message = "A senha não pode estar em branco")
-        @Size(min = 6, max = 100, message = "A senha deve ter entre 6 e 100 caracteres")
+        @Schema(description = "User's password", example = "password123", requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotBlank(message = "Password cannot be blank")
+        @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters")
         String password,
 
-        @NotNull(message = "O tipo de usuário é obrigatório")
+        @Schema(description = "Type of user", example = "DRIVER", requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotNull(message = "User type is required")
         UserType userType
 ) {
 }

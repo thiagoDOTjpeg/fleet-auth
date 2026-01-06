@@ -8,6 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
   @Override
   public void configureApiVersioning(ApiVersionConfigurer configurer) {
+    configurer.setDefaultVersion("1.0");
     configurer.useRequestHeader("API-Version");
   }
 }

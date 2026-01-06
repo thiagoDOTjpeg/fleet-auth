@@ -32,7 +32,7 @@ public class OutboxUserEventPublisher implements UserEventPublisher {
       outboxRepository.save(outboxEvent);
 
     } catch (Exception e) {
-      throw new RuntimeException("Error to serialize outbox event", e);
+      throw new RuntimeException("Failed to serialize outbox event", e);
     }
   }
 }
