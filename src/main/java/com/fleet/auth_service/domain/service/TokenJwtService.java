@@ -82,7 +82,7 @@ public class TokenJwtService {
     String userIdString = decodedJWT.getSubject();
     UUID userId = UUID.fromString(userIdString);
 
-    User user = userRepository.findById(userId)
+    User user = userRepository.findByIdWithRoles(userId)
             .orElseThrow(() -> new ResourceNotFoundException("User not found via Token: " + userIdString));
 
     return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());

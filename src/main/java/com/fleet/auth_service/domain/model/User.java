@@ -127,7 +127,7 @@ public class User implements UserDetails {
   @Override
   @NullMarked
   public String getUsername() {
-    return this.name;
+    return this.email;
   }
 
   public void setPassword(String password) {

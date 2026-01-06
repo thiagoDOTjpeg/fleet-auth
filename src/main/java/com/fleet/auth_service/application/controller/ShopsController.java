@@ -1,9 +1,15 @@
 package com.fleet.auth_service.application.controller;
 
-
 import com.fleet.auth_service.application.dto.request.metadata.ShopOwnerMetadata;
 import com.fleet.auth_service.application.service.ShopsService;
 import com.fleet.auth_service.domain.model.User;
+import com.fleet.auth_service.shared.exception.ExceptionMessage;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -17,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/shops")
+@Tag(name = "Shop", description = "Endpoints for shop management and onboarding")
 public class ShopsController {
   private final ShopsService shopsService;
 
@@ -25,7 +32,16 @@ public class ShopsController {
     this.shopsService = shopsService;
   }
 
-  @PostMapping(value = "/onboarding", version = "1.0", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "Shop Onboarding", description = "Registers shop owner metadata during the onboarding process")
+  @ApiResponse(responseCode = "200", description = "Shop onboarded successfully")
+  @ApiResponse(responseCode = "400", description = "Invalid shop metadata",
+          content = @Content(schema = @Schema(implementation = ExceptionMessage.class)))
+  @ApiResponse(responseCode = "401", description = "Unauthorized - invalid or missing token",
+          content = @Content(schema = @Schema(implementation = ExceptionMessage.class)))
+  @ApiResponse(responseCode = "403", description = "Forbidden - requires CLIENT role",
+          content = @Content(schema = @Schema(implementation = ExceptionMessage.class)))
+  @SecurityRequirement(name = "Bearer Authentication")
+  @PostMapping(value = "/onboarding", consumes = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasRole('CLIENT')")
   public ResponseEntity<Void> onboardShop(
           @AuthenticationPrincipal User user,
