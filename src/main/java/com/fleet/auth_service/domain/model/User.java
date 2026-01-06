@@ -1,7 +1,6 @@
 package com.fleet.auth_service.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fleet.auth_service.domain.enums.UserType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -26,10 +25,6 @@ public class User implements UserDetails {
 
   @Column
   private String password;
-
-  @Column(name = "user_type")
-  @Enumerated(EnumType.STRING)
-  private UserType userType;
 
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -62,12 +57,11 @@ public class User implements UserDetails {
   public User() {
   }
 
-  public User(UUID id, String name, String email, String password, UserType userType, Set<Role> roles, List<RefreshToken> refreshTokens, Instant createdAt, Instant updatedAt, boolean enabled, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired) {
+  public User(UUID id, String name, String email, String password, Set<Role> roles, List<RefreshToken> refreshTokens, Instant createdAt, Instant updatedAt, boolean enabled, boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired) {
     this.id = id;
     this.name = name;
     this.email = email;
     this.password = password;
-    this.userType = userType;
     this.roles = roles;
     this.refreshTokens = refreshTokens;
     this.createdAt = createdAt;
@@ -133,19 +127,11 @@ public class User implements UserDetails {
   @Override
   @NullMarked
   public String getUsername() {
-    return this.name;
+    return this.email;
   }
 
   public void setPassword(String password) {
     this.password = password;
-  }
-
-  public UserType getUserType() {
-    return userType;
-  }
-
-  public void setUserType(UserType userType) {
-    this.userType = userType;
   }
 
   public Instant getCreatedAt() {
@@ -214,7 +200,6 @@ public class User implements UserDetails {
             "id=" + id +
             ", name='" + name + '\'' +
             ", email='" + email + '\'' +
-            ", userType=" + userType +
             ", enabled=" + enabled +
             ", accountNonExpired=" + accountNonExpired +
             ", accountNonLocked=" + accountNonLocked +

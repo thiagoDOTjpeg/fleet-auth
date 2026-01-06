@@ -43,9 +43,8 @@ public class LoginUseCase {
   @Transactional
   public TokenResponse execute(LoginRequest request, String ipAddress, String userAgent) {
     Authentication auth;
-    String usernameComposite = request.email() + ":" + request.userType();
     try {
-      auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(usernameComposite, request.password()));
+      auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
 
     } catch (AuthenticationException e) {
       throw new UnauthorizedException("Email or password is invalid/wrong");
@@ -53,11 +52,7 @@ public class LoginUseCase {
 
     User user = (User) auth.getPrincipal();
 
-    if(user == null) throw new UnauthorizedException("Invalid email or password");
-
-    if (!user.getUserType().equals(request.userType())) {
-      throw new UnauthorizedException("User type is invalid for this request");
-    }
+    if(user == null) throw new UnauthorizedException("Email or password is invalid/wrong");
 
     String accessToken = tokenJwtService.generateAccessToken(user);
     String refreshToken = tokenJwtService.generateRefreshToken(user);

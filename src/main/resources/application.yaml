@@ -140,3 +140,9 @@ app:
     locations: classpath:db/migration
     baseline-version: "0"
     validate-on-migrate: true
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  swagger-ui:
+    enabled: true

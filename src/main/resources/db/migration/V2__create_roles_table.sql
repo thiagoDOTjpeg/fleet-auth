@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS roles (
 
 INSERT INTO roles (name) VALUES
                              ('ROLE_ADMIN'),
-                             ('ROLE_SUPPORT'),
-                             ('ROLE_USER'),
+                             ('ROLE_CLIENT'),
                              ('ROLE_DRIVER'),
-                             ('ROLE_MERCHANT');
+                             ('ROLE_SHOP_OWNER');
