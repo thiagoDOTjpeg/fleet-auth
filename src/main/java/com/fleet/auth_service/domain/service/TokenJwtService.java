@@ -6,19 +6,16 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fleet.auth_service.application.dto.response.TokenResponse;
-import com.fleet.auth_service.application.mapper.UserMapper;
 import com.fleet.auth_service.domain.model.Role;
 import com.fleet.auth_service.domain.model.User;
 import com.fleet.auth_service.infra.config.properties.JwtProperties;
-import com.fleet.auth_service.infra.repository.UserRepository;
+import com.fleet.auth_service.infra.repository.UserRepository; //
 import com.fleet.auth_service.shared.exception.UnauthorizedException;
+import com.fleet.auth_service.shared.exception.ResourceNotFoundException; // Use sua exception ou UsernameNotFoundException
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -26,18 +23,18 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class TokenJwtService {
   private final JwtProperties jwtProperties;
+  private final UserRepository userRepository; // 1. Adicionado Repository
   private Algorithm algorithm;
 
-  public TokenJwtService(JwtProperties jwtProperties) {
+  // 2. Injetando no construtor
+  public TokenJwtService(JwtProperties jwtProperties, UserRepository userRepository) {
     this.jwtProperties = jwtProperties;
+    this.userRepository = userRepository;
   }
 
   @PostConstruct
@@ -50,6 +47,7 @@ public class TokenJwtService {
     long accessExpMillis = jwtProperties.getExpiration().getAccessToken();
     return buildJwt(user, Instant.now(), accessExpMillis, randomJWTid);
   }
+
   public String generateRefreshToken(User user) {
     String randomJWTid = UUID.randomUUID().toString();
     long refreshExpMillis = jwtProperties.getExpiration().getRefreshToken();
@@ -81,16 +79,13 @@ public class TokenJwtService {
   }
 
   public Authentication getAuthentication(DecodedJWT decodedJWT) {
-    var rolesClaim = decodedJWT.getClaim("roles");
-    List<String> roles = rolesClaim.isNull() ? Collections.emptyList() : rolesClaim.asList(String.class);
+    String userIdString = decodedJWT.getSubject();
+    UUID userId = UUID.fromString(userIdString);
 
-    List<GrantedAuthority> authorities = roles.stream()
-            .map(role -> new SimpleGrantedAuthority(role.startsWith("ROLE_") ? role : "ROLE_" + role))
-            .collect(Collectors.toList());
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found via Token: " + userIdString));
 
-    String userId = decodedJWT.getSubject();
-
-    return new UsernamePasswordAuthenticationToken(userId, null, authorities);
+    return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
   }
 
   public String resolveToken(HttpServletRequest request) {

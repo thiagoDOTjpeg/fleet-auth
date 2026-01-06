@@ -1,7 +1,7 @@
 package com.fleet.auth_service.application.ports.output;
 
-import com.fleet.auth_service.application.dto.events.UserRegisteredEvent;
+import com.fleet.auth_service.application.dto.events.UserOnboardEvent;
 
 public interface UserEventPublisher {
-  void publishUserRegistered(UserRegisteredEvent event);
+  void publishUserOnboard(UserOnboardEvent event);
 }

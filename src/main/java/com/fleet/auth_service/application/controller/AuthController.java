@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication", description = "Endpoints for login, registration and token management")
 public class AuthController {
 
-  private static final Logger log = LoggerFactory.getLogger(AuthController.class);
   private final LoginUseCase loginUseCase;
   private final LogoutUseCase logoutUseCase;
   private final RefreshTokenUseCase refreshTokenUseCase;

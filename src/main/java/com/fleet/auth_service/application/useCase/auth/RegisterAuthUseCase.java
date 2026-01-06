@@ -3,25 +3,21 @@ package com.fleet.auth_service.application.useCase.auth;
 import com.fleet.auth_service.application.dto.request.RegisterRequest;
 import com.fleet.auth_service.application.dto.response.TokenResponse;
 import com.fleet.auth_service.application.mapper.UserMapper;
-import com.fleet.auth_service.application.strategy.RegistrationStrategy;
-import com.fleet.auth_service.application.strategy.factory.RegistrationFactory;
 import com.fleet.auth_service.domain.model.RefreshToken;
+import com.fleet.auth_service.domain.model.Role;
 import com.fleet.auth_service.domain.model.User;
 import com.fleet.auth_service.domain.model.UserSession;
 import com.fleet.auth_service.domain.service.RedisService;
 import com.fleet.auth_service.domain.service.TokenJwtService;
 import com.fleet.auth_service.infra.repository.RefreshTokenRepository;
+import com.fleet.auth_service.infra.repository.RoleRepository;
 import com.fleet.auth_service.infra.repository.UserRepository;
 import com.fleet.auth_service.shared.exception.ConflictException;
-import jakarta.transaction.TransactionSynchronizationRegistry;
+import com.fleet.auth_service.shared.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -31,20 +27,19 @@ import java.util.UUID;
 
 @Service
 public class RegisterAuthUseCase {
-  private static final Logger log = LoggerFactory.getLogger(RegisterAuthUseCase.class);
   private final UserRepository userRepository;
+  private final RoleRepository roleRepository;
   private final RefreshTokenRepository refreshTokenRepository;
-  private final RegistrationFactory registrationFactory;
   private final PasswordEncoder passwordEncoder;
   private final RedisService redisService;
   private final TokenJwtService tokenJwtService;
   private final UserMapper userMapper;
 
   @Autowired
-  public RegisterAuthUseCase(UserRepository userRepository, PasswordEncoder passwordEncoder, RedisService redisService, TokenJwtService tokenJwtService, UserMapper userMapper,  RefreshTokenRepository refreshTokenRepository, RegistrationFactory registrationFactory) {
+  public RegisterAuthUseCase(UserRepository userRepository, PasswordEncoder passwordEncoder, RedisService redisService, TokenJwtService tokenJwtService, UserMapper userMapper,  RefreshTokenRepository refreshTokenRepository, RoleRepository roleRepository) {
     this.userRepository = userRepository;
-    this.registrationFactory = registrationFactory;
     this.refreshTokenRepository = refreshTokenRepository;
+    this.roleRepository = roleRepository;
     this.passwordEncoder = passwordEncoder;
     this.redisService = redisService;
     this.tokenJwtService = tokenJwtService;
@@ -53,15 +48,14 @@ public class RegisterAuthUseCase {
 
   @Transactional
   public TokenResponse execute(RegisterRequest  registerRequest, String ipAddress, String userAgent) {
-    Optional<User> user = userRepository.findByEmailAndUserType(registerRequest.email(), registerRequest.userType());
+    Optional<User> user = userRepository.findByEmail(registerRequest.email());
     if (user.isPresent()) throw new ConflictException("Email already in use");
 
-    RegistrationStrategy strategy =  registrationFactory.getStrategy(registerRequest.userType());
-
     User userToRegister = userMapper.registerRequestToUser(registerRequest);
+    Role clientRole = roleRepository.findRoleByName("ROLE_CLIENT")
+      .orElseThrow(() -> new ResourceNotFoundException("Client role not found"));
     userToRegister.setPassword(passwordEncoder.encode(registerRequest.password()));
-
-    strategy.prepare(userToRegister, registerRequest.metadata());
+    userToRegister.addRole(clientRole);
 
     User savedUser = userRepository.save(userToRegister);
 
@@ -75,7 +69,6 @@ public class RegisterAuthUseCase {
     refreshTokenRepository.save(new RefreshToken(savedUser, hashRefresh, null, userSession.getSessionId(), issueTime.plus(7, ChronoUnit.DAYS)));
 
     redisService.saveSession(savedUser.getId(), userSession, Duration.ofDays(7));
-    strategy.execute(savedUser, registerRequest.metadata());
 
     return new TokenResponse(accessToken, refreshToken, userMapper.toUserSummary(savedUser));
   }

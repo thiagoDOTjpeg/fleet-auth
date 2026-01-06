@@ -5,8 +5,7 @@ CREATE TABLE IF NOT EXISTS roles (
     );
 
 INSERT INTO roles (name) VALUES
-                             ('ADMIN'),
-                             ('SUPPORT'),
-                             ('USER'),
-                             ('DRIVER'),
-                             ('MERCHANT');
+                             ('ROLE_ADMIN'),
+                             ('ROLE_CLIENT'),
+                             ('ROLE_DRIVER'),
+                             ('ROLE_SHOP_OWNER');
