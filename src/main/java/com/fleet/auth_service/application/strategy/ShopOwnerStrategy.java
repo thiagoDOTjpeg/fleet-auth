@@ -4,7 +4,6 @@ import com.fleet.auth_service.application.dto.events.UserRegisteredEvent;
 import com.fleet.auth_service.application.dto.request.RegistrationMetadata;
 import com.fleet.auth_service.application.dto.request.metadata.ShopOwnerMetadata;
 import com.fleet.auth_service.application.ports.output.UserEventPublisher;
-import com.fleet.auth_service.domain.enums.UserType;
 import com.fleet.auth_service.domain.model.Role;
 import com.fleet.auth_service.domain.model.User;
 import com.fleet.auth_service.infra.repository.RoleRepository;
@@ -46,12 +45,7 @@ public class ShopOwnerStrategy implements RegistrationStrategy{
               "openingHours", openingHours
       );
 
-      eventPublisher.publishUserRegistered(new UserRegisteredEvent(user.getId(), user.getEmail(), user.getUserType(), eventMetadata, Instant.now()));
+      eventPublisher.publishUserRegistered(new UserRegisteredEvent(user.getId(), user.getEmail(), eventMetadata, Instant.now()));
     }
-  }
-
-  @Override
-  public UserType getUserType() {
-    return UserType.SHOP_OWNER;
   }
 }

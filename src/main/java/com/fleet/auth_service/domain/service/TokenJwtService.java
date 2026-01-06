@@ -118,7 +118,6 @@ public class TokenJwtService {
             .withAudience(jwtProperties.getAudience())
             .withClaim("name", user.getName())
             .withClaim("email", user.getEmail())
-            .withClaim("userType", user.getUserType().toString())
             .withArrayClaim("roles", user.getRoles().stream()
                     .map(Role::getName)
                     .toArray(String[]::new))

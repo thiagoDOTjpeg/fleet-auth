@@ -4,11 +4,9 @@ import com.fleet.auth_service.application.dto.events.UserRegisteredEvent;
 import com.fleet.auth_service.application.dto.request.RegistrationMetadata;
 import com.fleet.auth_service.application.dto.request.metadata.ClientMetadata;
 import com.fleet.auth_service.application.ports.output.UserEventPublisher;
-import com.fleet.auth_service.domain.enums.UserType;
 import com.fleet.auth_service.domain.model.Role;
 import com.fleet.auth_service.domain.model.User;
 import com.fleet.auth_service.infra.repository.RoleRepository;
-import com.fleet.auth_service.infra.repository.UserRepository;
 import com.fleet.auth_service.shared.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -48,16 +46,10 @@ public class ClientStrategy implements RegistrationStrategy {
       eventPublisher.publishUserRegistered(new UserRegisteredEvent(
               user.getId(),
               user.getEmail(),
-              user.getUserType(),
               eventMetadata,
               Instant.now()));
     } else {
       throw new IllegalArgumentException("Invalid metadata for CLIENT");
     }
-  }
-
-  @Override
-  public UserType getUserType() {
-    return UserType.CLIENT;
   }
 }

@@ -2,8 +2,6 @@ package com.fleet.auth_service.application.strategy;
 
 import com.fleet.auth_service.application.dto.request.RegistrationMetadata;
 import com.fleet.auth_service.application.dto.request.metadata.AdminMetadata;
-import com.fleet.auth_service.application.dto.request.metadata.ClientMetadata;
-import com.fleet.auth_service.domain.enums.UserType;
 import com.fleet.auth_service.domain.model.Role;
 import com.fleet.auth_service.domain.model.User;
 import com.fleet.auth_service.infra.repository.RoleRepository;
@@ -33,10 +31,5 @@ public class AdminStrategy implements RegistrationStrategy{
   @Override
   public void execute(User user, RegistrationMetadata metadata) {
 
-  }
-
-  @Override
-  public UserType getUserType() {
-    return UserType.ADMIN;
   }
 }

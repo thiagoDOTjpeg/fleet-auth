@@ -6,7 +6,6 @@ import com.fleet.auth_service.application.dto.request.metadata.AdminMetadata;
 import com.fleet.auth_service.application.dto.request.metadata.ClientMetadata;
 import com.fleet.auth_service.application.dto.request.metadata.DriverMetadata;
 import com.fleet.auth_service.application.dto.request.metadata.ShopOwnerMetadata;
-import com.fleet.auth_service.domain.enums.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -28,10 +27,6 @@ public record RegisterRequest(
         @NotBlank(message = "Password is required")
         @Size(min = 8, max = 64, message = "Password must be between 8 and 64 characters")
         String password,
-
-        @Schema(description = "Type of user", example = "DRIVER", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotNull(message = "User userType is required")
-        UserType userType,
 
         @Schema(
                 description = "User type specific metadata",
